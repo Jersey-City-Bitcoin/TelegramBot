@@ -22,7 +22,7 @@ This is the Jersey City Bitcoin Telegram Bot, a simple bot that provides the cur
 1. Clone the repository:
 
     ```sh
-    git clone https://github.com/yourusername/jcbtcbot.git
+    git clone https://github.com/Jersey-City-Bitcoin/TelegramBot.git
     cd jcbtcbot
     ```
 
