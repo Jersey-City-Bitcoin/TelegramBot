@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from telegram import Update, BotCommand
 from telegram.ext import Application, CommandHandler, ContextTypes
 import nest_asyncio
+from datetime import datetime, timedelta
 
 # Apply nest_asyncio to allow nested event loops
 nest_asyncio.apply()
@@ -68,7 +69,7 @@ async def fee(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         fee_message = (
             f"No Priority: {minimum_fee} sat/vB (${calculate_fee_cost(minimum_fee):.2f})\n"
             f"Low Priority: {economy_fee} sat/vB (${calculate_fee_cost(economy_fee):.2f})\n"
-            f"Medium Priority: {hour_fee} sat/vB (${calculate_fee_cost(hour_fee)::.2f})\n"
+            f"Medium Priority: {hour_fee} sat/vB (${calculate_fee_cost(hour_fee):.2f})\n"
             f"High Priority: {half_hour_fee} sat/vB (${calculate_fee_cost(half_hour_fee):.2f})\n"
             f"Fastest: {fastest_fee} sat/vB (${calculate_fee_cost(fastest_fee):.2f})\n"
         )
@@ -86,6 +87,36 @@ async def restricted_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     await update.message.reply_text("This is a restricted command.")
 
+# Define the /nextmeetup command handler
+async def nextmeetup(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send the date of the next meetup, which is always the second Thursday of the month."""
+    today = datetime.today()
+    
+    # Find the first day of the current month
+    first_day_current_month = today.replace(day=1)
+    
+    # Find the first Thursday of the current month
+    first_thursday_current_month = first_day_current_month + timedelta(days=(3 - first_day_current_month.weekday() + 7) % 7)
+    
+    # Find the second Thursday of the current month
+    second_thursday_current_month = first_thursday_current_month + timedelta(days=7)
+    
+    if today <= second_thursday_current_month:
+        next_meetup = second_thursday_current_month
+    else:
+        # Find the first day of the next month
+        first_day_next_month = (today.replace(day=1) + timedelta(days=32)).replace(day=1)
+        
+        # Find the first Thursday of the next month
+        first_thursday_next_month = first_day_next_month + timedelta(days=(3 - first_day_next_month.weekday() + 7) % 7)
+        
+        # Find the second Thursday of the next month
+        second_thursday_next_month = first_thursday_next_month + timedelta(days=7)
+        
+        next_meetup = second_thursday_next_month
+    
+    await update.message.reply_text(f"The next meetup is on {next_meetup.strftime('%A %B %d, %Y')}.")
+
 async def main() -> None:
     """Start the bot."""
     application = Application.builder().token(BOT_TOKEN).build()
@@ -93,7 +124,8 @@ async def main() -> None:
     # Set bot commands
     commands = [
         BotCommand("price", "Get the current price of Bitcoin in USD"),
-        BotCommand("fee", "Get the recommended transaction fees in sats/vB")
+        BotCommand("fee", "Get the recommended transaction fees in sats/vB"),
+        BotCommand("nextmeetup", "Get the date of the next meetup")
     ]
     
     async def set_commands():
@@ -103,6 +135,7 @@ async def main() -> None:
     application.add_handler(CommandHandler("price", price))
     application.add_handler(CommandHandler("fee", fee))
     application.add_handler(CommandHandler("restricted", restricted_command))
+    application.add_handler(CommandHandler("nextmeetup", nextmeetup))
 
     # Set the commands
     await set_commands()
