@@ -35,6 +35,8 @@ def is_user_allowed(user_id):
 # Define the /price command handler
 async def price(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the current price of Bitcoin in USD."""
+    user = update.effective_user
+    logger.info(f"Received /price command from {user.full_name} (ID: {user.id})")
     try:
         response = requests.get("https://bitpay.com/api/rates/BTC/USD")
         data = response.json()
@@ -47,6 +49,8 @@ async def price(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # Define the /fee command handler
 async def fee(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the recommended transaction fees in sats/vB and their cost in USD."""
+    user = update.effective_user
+    logger.info(f"Received /fee command from {user.full_name} (ID: {user.id})")
     try:
         # Fetch the recommended fees
         response = requests.get("https://mempool.space/api/v1/fees/recommended")
@@ -81,7 +85,9 @@ async def fee(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # Define a sample restricted command handler
 async def restricted_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """A restricted command that only allowed users can access."""
-    if not is_user_allowed(update.effective_user.id):
+    user = update.effective_user
+    logger.info(f"Received /restricted command from {user.full_name} (ID: {user.id})")
+    if not is_user_allowed(user.id):
         await update.message.reply_text("You are not authorized to use this command.")
         return
 
@@ -90,6 +96,8 @@ async def restricted_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
 # Define the /nextmeetup command handler
 async def nextmeetup(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send the date of the next meetup, which is always the second Thursday of the month."""
+    user = update.effective_user
+    logger.info(f"Received /nextmeetup command from {user.full_name} (ID: {user.id})")
     today = datetime.today()
     
     # Find the first day of the current month
@@ -108,7 +116,7 @@ async def nextmeetup(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         first_day_next_month = (today.replace(day=1) + timedelta(days=32)).replace(day=1)
         
         # Find the first Thursday of the next month
-        first_thursday_next_month = first_day_next_month + timedelta(days=(3 - first_day_next_month.weekday() + 7) % 7)
+        first_thursday_next_month = first_day_next_month + timedelta(days=(3 - first_thursday_next_month.weekday() + 7) % 7)
         
         # Find the second Thursday of the next month
         second_thursday_next_month = first_thursday_next_month + timedelta(days=7)

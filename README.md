@@ -39,13 +39,13 @@ This is the Jersey City Bitcoin Telegram Bot, a simple bot that provides the cur
     pip install -r requirements.txt
     ```
 
-4. Create a [.env](http://_vscodecontentref_/0) file based on the [.env.example](http://_vscodecontentref_/1) file:
+4. Create a .env file based on the .env.example file:
 
     ```sh
     cp .env.example .env
     ```
 
-5. Edit the [.env](http://_vscodecontentref_/2) file to include your bot token and allowed user IDs:
+5. Edit the .env file to include your bot token and allowed user IDs:
 
     ```env
     BOT_TOKEN=your_bot_token_here
