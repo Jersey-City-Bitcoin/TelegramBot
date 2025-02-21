@@ -59,10 +59,10 @@ def get_next_meetup_date():
         return second_thursday_current_month
     else:
         first_day_next_month = (today.replace(day=1) + timedelta(days=32)).replace(day=1)
-        first_thursday_next_month = first_day_next_month + timedelta(days=(3 - first_thursday_next_month.weekday() + 7) % 7)
+        first_thursday_next_month = first_day_next_month + timedelta(days=(3 - first_day_next_month.weekday() + 7) % 7)
         second_thursday_next_month = first_thursday_next_month + timedelta(days=7)
         return second_thursday_next_month
-
+        
 # Function to announce the winner
 async def announce_winner(context: ContextTypes.DEFAULT_TYPE):
     next_meetup = get_next_meetup_date()
