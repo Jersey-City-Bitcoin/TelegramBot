@@ -117,18 +117,24 @@ async def price(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 # Define the /fee command handler
 async def fee(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send the recommended transaction fees in sats/vB."""
-    user = update.effective_user
-    logger.info(f"Received /fee command from {user.full_name} (ID: {user.id})")
+    """Send the recommended transaction fees in sats/vB and their cost in USD."""
     try:
+        # Fetch the recommended fees
+        response = requests.get("https://mempool.space/api/v1/fees/recommended")
+        fee_data = response.json()
+        fastest_fee = fee_data['fastestFee']
+        half_hour_fee = fee_data['halfHourFee']
+        hour_fee = fee_data['hourFee']
+        economy_fee = fee_data['economyFee']
+        minimum_fee = fee_data['minimumFee']
+        # Fetch the current Bitcoin price
         response = requests.get("https://bitpay.com/api/rates/BTC/USD")
         price_data = response.json()
         btc_price = price_data['rate']
-        
+
         # Calculate the fee cost in USD based on an average transaction size of 140 vbytes
         def calculate_fee_cost(fee_rate):
             return (fee_rate * 140 * 0.00000001 * btc_price)
-
         fee_message = (
             f"No Priority: {minimum_fee} sat/vB (${calculate_fee_cost(minimum_fee):.2f})\n"
             f"Low Priority: {economy_fee} sat/vB (${calculate_fee_cost(economy_fee):.2f})\n"
